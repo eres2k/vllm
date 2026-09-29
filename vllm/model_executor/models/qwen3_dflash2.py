@@ -317,9 +317,10 @@ class DFlash2Qwen3ForCausalLM(DFlashQwen3ForCausalLM):
     def compute_candidates(
         self, hidden_states: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        if not isinstance(self.lm_head.quant_method, UnquantizedEmbeddingMethod):
+        from vllm.model_executor.layers.linear import UnquantizedLinearMethod
+        if not isinstance(self.lm_head.quant_method, (UnquantizedEmbeddingMethod, UnquantizedLinearMethod)):
             raise ValueError(
-                "DFlash2 requires an unquantized target LM head for candidate TopK."
+                f"DFlash2 requires an unquantized target LM head for candidate TopK. got {type(self.lm_head.quant_method)}"
             )
 
         selector = self.model.candidate_selector
